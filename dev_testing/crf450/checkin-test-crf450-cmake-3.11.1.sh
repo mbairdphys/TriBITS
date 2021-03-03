@@ -17,6 +17,7 @@ TRIBITS_BASE_DIR_ABS=$(readlink -f $TRIBITS_BASE_DIR)
 # Load the env:
 source /home/vera_env/gcc-4.8.3/load_dev_env.sh
 export PATH=/home/vera_env/common_tools/cmake-3.11.1/bin:$PATH
+export TribitsExMetaProj_GIT_URL_REPO_BASE=git@github.com:tribits/
 
 # Create extra builds run by this script
 
@@ -27,6 +28,7 @@ echo "
 -DTriBITS_ENABLE_Fortran:BOOL=ON
 -DTriBITS_CTEST_DRIVER_COVERAGE_TESTS=TRUE
 -DTriBITS_CTEST_DRIVER_MEMORY_TESTS=TRUE
+-DTriBITS_ENABLE_REAL_GIT_CLONE_TESTS=ON \
 " > MPI_DEBUG.config
 
 echo "
@@ -38,6 +40,7 @@ echo "
 -DCMAKE_Fortran_COMPILER=gfortran
 -DTriBITS_CTEST_DRIVER_COVERAGE_TESTS=TRUE
 -DTriBITS_CTEST_DRIVER_MEMORY_TESTS=TRUE
+-DTriBITS_ENABLE_REAL_GIT_CLONE_TESTS=ON \
 " > SERIAL_RELEASE.config
 
 # Run checkin-test.py

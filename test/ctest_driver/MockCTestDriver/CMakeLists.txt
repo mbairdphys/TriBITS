@@ -160,9 +160,10 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   PASS_REGULAR_EXPRESSION_ALL
     "Enabling all SE packages that are not currently disabled because of Trilinos_ENABLE_ALL_PACKAGES=ON"
     "Final set of enabled packages:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Stratimikos RBGen 19"
-    "Final set of non-enabled packages:  Stokhos Sacado Belos Phalanx Panzer 5"
-  COMPARE_DEPS_FILE
-     "${CMAKE_CURRENT_SOURCE_DIR}/TrilinosPackageDependencies.Trilinos.xml"
+    "Final set of non-enabled packages:  Stokhos Sacado Belos Phalanx Panzer "
+# Disabling until next TriBITS update
+#  COMPARE_DEPS_FILE
+#     "${CMAKE_CURRENT_SOURCE_DIR}/TrilinosPackageDependencies.Trilinos.xml"
   )
 
 
@@ -171,8 +172,8 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   ARGS Trilinos_ENABLE_SECONDARY_TESTED_CODE=ON
   PASS_REGULAR_EXPRESSION_ALL
     "Enabling all SE packages that are not currently disabled because of Trilinos_ENABLE_ALL_PACKAGES=ON"
-    "Final set of enabled packages:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Sacado Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Belos Stratimikos RBGen Phalanx Panzer 23"
-    "Final set of non-enabled packages:  Stokhos 1"
+    "Final set of enabled packages:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Sacado Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Belos Stratimikos RBGen Phalanx Panzer "
+    "Final set of non-enabled packages:  Stokhos "
   )
 
 
@@ -194,7 +195,7 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   ARGS Trilinos_PACKAGES=RTOp Trilinos_EXCLUDE_PACKAGES=Teuchos
   PASS_REGULAR_EXPRESSION_ALL
     "Explicitly enabled packages on input .by user.:  RTOp 1"
-    "WARNING: Setting Trilinos_ENABLE_RTOp=OFF which was 'ON' because RTOp has a required library dependence on disabled package Teuchos but Trilinos_DISABLE_ENABLED_FORWARD_DEP_PACKAGES=ON!"
+    "NOTE: Setting Trilinos_ENABLE_RTOp=OFF which was 'ON' because RTOp has a required library dependence on disabled package Teuchos but Trilinos_DISABLE_ENABLED_FORWARD_DEP_PACKAGES=ON!"
     "Final set of enabled packages:  0"
     "Trilinos_NUM_ENABLED_PACKAGES=0:  Exiting the script!"
   )
@@ -223,7 +224,7 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   PASS_REGULAR_EXPRESSION_ALL
     "Explicitly enabled packages on input .by user.:  Teuchos 1"
     "Explicitly disabled TPLs on input .by user or by default.:  BLAS 1"
-    "WARNING: Setting Trilinos_ENABLE_Teuchos=OFF which was 'ON' because Teuchos has a required library dependence on disabled TPL BLAS but Trilinos_DISABLE_ENABLED_FORWARD_DEP_PACKAGES=ON!"
+    "NOTE: Setting Trilinos_ENABLE_Teuchos=OFF which was 'ON' because Teuchos has a required library dependence on disabled TPL BLAS but Trilinos_DISABLE_ENABLED_FORWARD_DEP_PACKAGES=ON!"
     "Final set of enabled packages:  0"
     "Trilinos_NUM_ENABLED_PACKAGES=0:  Exiting the script!"
   )
@@ -289,9 +290,9 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   ARGS Trilinos_PACKAGES=Thyra Trilinos_EXCLUDE_PACKAGES=Epetra
   PASS_REGULAR_EXPRESSION_ALL
     "Explicitly enabled packages on input .* Thyra 1"
-    "Explicitly disabled packages on input .*  Epetra Stokhos 2"
+    "Explicitly disabled packages on input .*  Epetra Stokhos "
     "Final set of enabled packages:  Teuchos RTOp Tpetra Thyra 4"
-    "Final set of non-enabled packages:  TrilinosFramework Epetra Zoltan Shards Triutils EpetraExt Stokhos Sacado Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Belos Stratimikos RBGen Phalanx Panzer 20"
+    "Final set of non-enabled packages:  TrilinosFramework Epetra Zoltan Shards Triutils EpetraExt Stokhos Sacado Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Belos Stratimikos RBGen Phalanx Panzer "
     "Processing current package Teuchos: libs='ON', tests=''"
     "Processing current package Thyra: libs='ON', tests='ON'"
   )
@@ -303,10 +304,10 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   PASS_REGULAR_EXPRESSION_ALL
     "Enabling explicitly set package Phalanx"
     "Explicitly enabled packages on input .*  Phalanx 1"
-    "Explicitly disabled packages on input .*  Stokhos 1"
+    "Explicitly disabled packages on input .* Stokhos "
     "Enabling all SE packages that are not currently disabled because of Trilinos_ENABLE_ALL_PACKAGES=ON"
     "Final set of enabled packages:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Sacado Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Stratimikos RBGen Phalanx 21"
-    "Final set of non-enabled packages:  Stokhos Belos Panzer 3"
+    "Final set of non-enabled packages:  Stokhos Belos Panzer " 
     "Processing current package RBGen: libs='ON', tests='ON'"
     "Processing current package Phalanx: libs='ON', tests='ON'"
   )
@@ -321,7 +322,7 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
     "Explicitly disabled packages on input .*  0"
     "Enabling all SE packages that are not currently disabled because of Trilinos_ENABLE_ALL_PACKAGES=ON"
     "Final set of enabled packages:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Stokhos Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Stratimikos RBGen 20"
-    "Final set of non-enabled packages:  Sacado Belos Phalanx Panzer 4"
+    "Final set of non-enabled packages:  Sacado Belos Phalanx Panzer"
     "Processing current package Stokhos: libs='ON', tests='ON'"
     "Processing current package RBGen: libs='ON', tests='ON'"
   )
@@ -335,8 +336,8 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
     "Explicitly enabled packages on input .*  Stokhos 1"
     "Explicitly disabled packages on input .*  0"
     "Enabling all SE packages that are not currently disabled because of Trilinos_ENABLE_ALL_PACKAGES=ON"
-    "Final set of enabled packages:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Stokhos Sacado Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Belos Stratimikos RBGen Phalanx Panzer 24"
-    "Final set of non-enabled packages:  0"
+    "Final set of enabled packages:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Stokhos Sacado Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Belos Stratimikos RBGen Phalanx Panzer "
+    "Final set of non-enabled packages: "
     "Processing current package Stokhos: libs='ON', tests='ON'"
     "Processing current package RBGen: libs='ON', tests='ON'"
     "Processing current package Phalanx: libs='ON', tests='ON'"
@@ -351,7 +352,7 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
     "Explicitly enabled packages on input .*  0"
     "Explicitly disabled packages on input .*  Stokhos Stalix 2"
     "Enabling all SE packages that are not currently disabled because of Trilinos_ENABLE_ALL_PACKAGES=ON"
-    "WARNING: Not Setting Trilinos_ENABLE_Belos=ON even though Stratimikos has an optional dependence on Belos because Trilinos_ENABLE_SECONDARY_TESTED_CODE=OFF"
+    "NOTE: Not Setting Trilinos_ENABLE_Belos=ON even though Stratimikos has an optional dependence on Belos because Trilinos_ENABLE_SECONDARY_TESTED_CODE=OFF"
     "Final set of enabled packages:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Stratimikos RBGen 19"
     "Final set of packages to be explicitly processed by CTest/CDash:  TrilinosFramework Teuchos RTOp Epetra Zoltan Shards Triutils Tpetra EpetraExt Thyra Isorropia AztecOO Galeri Amesos Intrepid Ifpack ML Stratimikos RBGen 19"
     "Final set of non-enabled packages:  Stokhos Sacado Belos Phalanx Panzer Teko Stalix 7"
@@ -402,20 +403,27 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
 # Check repo operations for an update
 CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   CI_TestGitUpdateCommands
-  ARGS Trilinos_ENABLE_SECONDARY_TESTED_CODE=ON Trilinos_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE=Continuous
+  ARGS
+    Trilinos_REPOSITORY_LOCATION=https://some-git-url/Trilinos.git
+    Trilinos_GIT_REPOSITORY_REMOTE=other-remote
+    CTEST_UPDATE_ARGS="--reference <some-base-dir>/Trilinos"
+    Trilinos_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE=Continuous
+    Trilinos_ENABLE_SECONDARY_TESTED_CODE=ON
     Trilinos_ADDITIONAL_PACKAGES=Stalix
   PASS_REGULAR_EXPRESSION_ALL
+    "CTEST_CHECKOUT_COMMAND=./somebasedir/git. clone -o other-remote --reference <some-base-dir>/Trilinos https://some-git-url/Trilinos[.]git"
     "preCopyrightTrilinos: Doing GIT update from URL 'url1:/git/preCopyrightTrilinos' to dir '.*/MockTrilinos/preCopyrightTrilinos'"
-    "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]clean[;]-fdx[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/preCopyrightTrilinos.clean.out."
+     "CTEST_GIT_UPDATE_CUSTOM=${CMAKE_COMMAND}[;]-DGIT_EXE=/somebasedir/git[;]-DREMOTE_NAME=other-remote[;]-DBRANCH=[;]-DUNIT_TEST_MODE=ON[;]-DOUTPUT_FILE=.*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/UpdateCommandsOutput.txt[;]-P[;].*/tribits/ctest_driver/tribits_ctest_update_commands_wrapper.cmake"
+     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]fetch[;]other-remote[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/preCopyrightTrilinos.fetch.out."
+     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]clean[;]-fdx[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/preCopyrightTrilinos.clean.out."
     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]reset[;]--hard[;]HEAD[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/preCopyrightTrilinos.reset.out."
-    "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]fetch[;]origin[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/preCopyrightTrilinos.fetch.out."
-    "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]reset[;]--hard[;]tracking/branch[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/preCopyrightTrilinos.set_branch.out."
+     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]reset[;]--hard[;]@{u}[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/preCopyrightTrilinos.set_branch.out."
     "Dakota: Doing initial GIT clone/checkout from URL 'url3:/git/Dakota' to dir 'packages/TriKota/Dakota' ..."
-    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clone[;]url3:/git/Dakota[;]packages/TriKota/Dakota[;]WORKING_DIRECTORY[;].*/tribits/examples/MockTrilinos[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Dakota.clone.out"
+    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clone[;]-o[;]other-remote[;]url3:/git/Dakota[;]packages/TriKota/Dakota[;]WORKING_DIRECTORY[;].*/tribits/examples/MockTrilinos[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Dakota.clone.out"
+     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]fetch[;]other-remote[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Dakota.fetch.out"
     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clean[;]-fdx[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Dakota.clean.out"
     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]reset[;]--hard[;]HEAD[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Dakota.reset.out"
-    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]fetch[;]origin[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Dakota.fetch.out"
-    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]reset[;]--hard[;]tracking/branch[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Dakota.set_branch.out"
+    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]reset[;]--hard[;]@{u}[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Dakota.set_branch.out"
     "Dakota: Doing initial GIT clone/checkout from URL 'url3:/git/Dakota' to dir 'packages/TriKota/Dakota' ..."
     "EXECUTE_PROCESS.COMMAND[;].*/python.*[;].*/python_utils/gitdist[;]--dist-no-color[;]log[;]--pretty=format.*[;]--name-status[;]-C[;]ORIG_HEAD..HEAD[;]WORKING_DIRECTORY[;].*/examples/MockTrilinos[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands/Updates.txt"
     "Adding POST extra Continuous repository preCopyrightTrilinos"
@@ -432,20 +440,25 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
 # Test repo operations for Trilinos_BRANCH=other-branch (#130)
 CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   CI_TestGitUpdateCommands_Branch
-  ARGS Trilinos_ENABLE_SECONDARY_TESTED_CODE=ON Trilinos_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE=Continuous
-    Trilinos_ADDITIONAL_PACKAGES=Stalix
+  ARGS
+    Trilinos_REPOSITORY_LOCATION=https://some-git-url/Trilinos.git
+    CTEST_UPDATE_ARGS="--reference <some-base-dir>/Trilinos"
     Trilinos_BRANCH=other-branch
+    Trilinos_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE=Continuous
+    Trilinos_ENABLE_SECONDARY_TESTED_CODE=ON
+    Trilinos_ADDITIONAL_PACKAGES=Stalix
   PASS_REGULAR_EXPRESSION_ALL
-    "For base repo, doing switch to branch other-branch"
-    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]checkout[;]-B[;]other-branch[;]--track[;]origin/other-branch[;]WORKING_DIRECTORY[;].*/MockTrilinos[;]RESULT_VARIABLE[;]GIT_CHECKOUT_RETURN_VAL[;]OUTPUT_VARIABLE[;]BRANCH_OUTPUT[;]ERROR_VARIABLE[;]BRANCH_ERROR"
+    "CTEST_CHECKOUT_COMMAND=./somebasedir/git. clone -b other-branch -o origin --reference <some-base-dir>/Trilinos https://some-git-url/Trilinos[.]git"
+    "CTEST_GIT_UPDATE_CUSTOM=${CMAKE_COMMAND}[;]-DGIT_EXE=/somebasedir/git[;]-DREMOTE_NAME=origin[;]-DBRANCH=other-branch[;]-DUNIT_TEST_MODE=ON[;]-DOUTPUT_FILE=.*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/UpdateCommandsOutput.txt[;]-P[;].*/tribits/ctest_driver/tribits_ctest_update_commands_wrapper.cmake"
+    
     "For extra repos, doing switch to branch other-branch"
     "preCopyrightTrilinos: Doing GIT update from URL 'url1:/git/preCopyrightTrilinos' to dir '.*/MockTrilinos/preCopyrightTrilinos'"
+    "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]fetch[;]origin[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/preCopyrightTrilinos.fetch.out."
     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]clean[;]-fdx[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/preCopyrightTrilinos.clean.out."
     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]reset[;]--hard[;]HEAD[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/preCopyrightTrilinos.reset.out."
-    "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]fetch[;]origin[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/preCopyrightTrilinos.fetch.out."
     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]checkout[;]-B[;]other-branch[;]--track[;]origin/other-branch[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/preCopyrightTrilinos.set_branch.out."
     "Dakota: Doing initial GIT clone/checkout from URL 'url3:/git/Dakota' to dir 'packages/TriKota/Dakota' ..."
-    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clone[;]url3:/git/Dakota[;]packages/TriKota/Dakota[;]WORKING_DIRECTORY[;].*/tribits/examples/MockTrilinos[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/Dakota.clone.out"
+    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clone[;]-b[;]other-branch[;]-o[;]origin[;]url3:/git/Dakota[;]packages/TriKota/Dakota[;]WORKING_DIRECTORY[;].*/tribits/examples/MockTrilinos[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/Dakota.clone.out"
     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clean[;]-fdx[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/Dakota.clean.out"
     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]reset[;]--hard[;]HEAD[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/Dakota.reset.out"
     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]fetch[;]origin[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch/Dakota.fetch.out"
@@ -459,17 +472,25 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
     "Trilinos_NUM_TPLS='20'"
     "Skipping reading packages and TPLs for POST extra repo Dakota because marked NOPACKAGES"
     )
+  # NOTE: Above tets with default Trilinos_GIT_REPOSITORY_REMOTE=origin which
+  # is important to test!
 
 
 # Test repo operations Trilinos_BRANCH=other-branch, Trilinos_EXTRAREPOS_BRANCH=yet-other-branch
 CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
   CI_TestGitUpdateCommands_Branch_ExtraReposBranch
-  ARGS Trilinos_ENABLE_SECONDARY_TESTED_CODE=ON Trilinos_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE=Continuous
+  ARGS
+    Trilinos_REPOSITORY_LOCATION=https://some-git-url/Trilinos.git
+    Trilinos_BRANCH=other-branch
+    Trilinos_EXTRAREPOS_BRANCH=yet-other-branch
+    Trilinos_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE=Continuous
+    Trilinos_ENABLE_SECONDARY_TESTED_CODE=ON
     Trilinos_ADDITIONAL_PACKAGES=Stalix
-    Trilinos_BRANCH=other-branch Trilinos_EXTRAREPOS_BRANCH=yet-other-branch
   PASS_REGULAR_EXPRESSION_ALL
-    "For base repo, doing switch to branch other-branch"
-    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]checkout[;]-B[;]other-branch[;]--track[;]origin/other-branch[;]WORKING_DIRECTORY[;].*/MockTrilinos[;]RESULT_VARIABLE[;]GIT_CHECKOUT_RETURN_VAL[;]OUTPUT_VARIABLE[;]BRANCH_OUTPUT[;]ERROR_VARIABLE[;]BRANCH_ERROR"
+
+    "CTEST_CHECKOUT_COMMAND=./somebasedir/git. clone -b other-branch -o origin  https://some-git-url/Trilinos[.]git"
+    "CTEST_GIT_UPDATE_CUSTOM=${CMAKE_COMMAND}[;]-DGIT_EXE=/somebasedir/git[;]-DREMOTE_NAME=origin[;]-DBRANCH=other-branch[;]-DUNIT_TEST_MODE=ON[;]-DOUTPUT_FILE=.*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/UpdateCommandsOutput.txt[;]-P[;].*/tribits/ctest_driver/tribits_ctest_update_commands_wrapper.cmake"
+    
     "For extra repos, doing switch to branch yet-other-branch"
     "preCopyrightTrilinos: Doing GIT update from URL 'url1:/git/preCopyrightTrilinos' to dir '.*/MockTrilinos/preCopyrightTrilinos'"
     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]clean[;]-fdx[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/preCopyrightTrilinos.clean.out."
@@ -477,7 +498,7 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]fetch[;]origin[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/preCopyrightTrilinos.fetch.out."
     "EXECUTE_PROCESS.COMMAND./somebasedir/git[;]checkout[;]-B[;]yet-other-branch[;]--track[;]origin/yet-other-branch[;]WORKING_DIRECTORY[;].*/MockTrilinos/preCopyrightTrilinos.OUTPUT_FILE[;].*/test/ctest_driver/MockCTestDriver/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/preCopyrightTrilinos.set_branch.out."
     "Dakota: Doing initial GIT clone/checkout from URL 'url3:/git/Dakota' to dir 'packages/TriKota/Dakota' ..."
-    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clone[;]url3:/git/Dakota[;]packages/TriKota/Dakota[;]WORKING_DIRECTORY[;].*/tribits/examples/MockTrilinos[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/Dakota.clone.out"
+    "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clone[;]-b[;]yet-other-branch[;]-o[;]origin[;]url3:/git/Dakota[;]packages/TriKota/Dakota[;]WORKING_DIRECTORY[;].*/tribits/examples/MockTrilinos[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/Dakota.clone.out"
     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]clean[;]-fdx[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/Dakota.clean.out"
     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]reset[;]--hard[;]HEAD[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/Dakota.reset.out"
     "EXECUTE_PROCESS.COMMAND[;]/somebasedir/git[;]fetch[;]origin[;]TIMEOUT[;]600[;]WORKING_DIRECTORY[;].*/MockTrilinos/packages/TriKota/Dakota[;]OUTPUT_FILE[;].*/TriBITS_MockCTestDriver_CI_TestGitUpdateCommands_Branch_ExtraReposBranch/Dakota.fetch.out"
@@ -846,7 +867,7 @@ IF (PYTHON_EXECUTABLE)
       "Skipping build because CTEST_DEPENDENCY_HANDLING_UNIT_TESTING='ON'"
       "Skipping testing because CTEST_DEPENDENCY_HANDLING_UNIT_TESTING='ON'"
       "Done with the all-at-once configure, build, test, ans submit of Trilinos packages"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     )
   # NOTE: The above test is for the all-at-once appraoch that checks for the
   # ALL_PACKAGES value in failedPackages.txt.  That value can be returned from
@@ -876,7 +897,7 @@ IF (PYTHON_EXECUTABLE)
       "Skipping build because CTEST_DEPENDENCY_HANDLING_UNIT_TESTING='ON'"
       "Skipping testing because CTEST_DEPENDENCY_HANDLING_UNIT_TESTING='ON'"
       "Done with the all-at-once configure, build, test, ans submit of Trilinos packages"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     )
   # NOTE: The above test is for the all-at-once appraoch where
   # <Project>_ENABLE_ALL_PACKAGES=ON is set (implicitly) but some packages are
@@ -967,3 +988,92 @@ CREATE_CTEST_DEPENDENCY_HANDLING_TEST_CASE(
 
 
 # ToDo: Test ???
+
+
+#
+# Test tribits_ctest_update_commands_wrapper.cmake
+#
+
+
+TRIBITS_ADD_ADVANCED_TEST( CTestDriver_tribits_ctest_update_commands_wrapper_named_branch
+  OVERALL_WORKING_DIRECTORY TEST_NAME
+  OVERALL_NUM_MPI_PROCS 1
+
+  TEST_0
+    CMND "${CMAKE_COMMAND}"
+    ARGS
+      -DGIT_EXE=/some-dir/git
+      -DREMOTE_NAME=my-remote
+      -DBRANCH=my-branch
+      -DUNIT_TEST_MODE=ON
+      -DOUTPUT_FILE=UpdateCommandsOutput.txt
+      -P ${${PROJECT_NAME}_TRIBITS_DIR}/ctest_driver/tribits_ctest_update_commands_wrapper.cmake
+    ALWAYS_FAIL_ON_NONZERO_RETURN
+    PASS_REGULAR_EXPRESSION_ALL
+      "cmake -P tribits_ctest_update_commands_wrapper.cmake"
+      "-- OUTPUT_FILE=UpdateCommandsOutput.txt"
+      "tribits_ctest_update_commands_wrapper.cmake return: 0"
+
+  TEST_1
+    CMND cat ARGS UpdateCommandsOutput.txt
+    ALWAYS_FAIL_ON_NONZERO_RETURN
+    PASS_REGULAR_EXPRESSION_ALL
+      "cmake -P tribits_ctest_update_commands.cmake:"
+      "-- GIT_EXE=/some-dir/git"
+      "-- REMOTE_NAME=my-remote"
+      "-- BRANCH=my-branch"
+      "-- UNIT_TEST_MODE=ON"
+      "Running: /some-dir/git fetch my-remote"
+      "execute_process[(]COMMAND[;]/some-dir/git[;]fetch[;]my-remote[)]"
+      "Running: /some-dir/git clean -fdx"
+      "execute_process[(]COMMAND[;]/some-dir/git[;]clean[;]-fdx[)]"
+      "Running: /some-dir/git reset --hard HEAD"
+      "execute_process[(]COMMAND[;]/some-dir/git[;]reset[;]--hard[;]HEAD[)]"
+      "Running: /some-dir/git checkout -B my-branch --track my-remote/my-branch"
+      "execute_process[(]COMMAND[;]/some-dir/git[;]checkout[;]-B[;]my-branch[;]--track[;]my-remote/my-branch[)]"
+      "Git Update PASSED!"
+
+   )
+
+
+TRIBITS_ADD_ADVANCED_TEST( CTestDriver_tribits_ctest_update_commands_wrapper_default_branch
+  OVERALL_WORKING_DIRECTORY TEST_NAME
+  OVERALL_NUM_MPI_PROCS 1
+
+  TEST_0
+    CMND "${CMAKE_COMMAND}"
+    ARGS
+      -DGIT_EXE=/some-dir/git
+      -DREMOTE_NAME=origin
+      -DBRANCH=
+      -DUNIT_TEST_MODE=ON
+      -DOUTPUT_FILE=UpdateCommandsOutput.txt
+      -P ${${PROJECT_NAME}_TRIBITS_DIR}/ctest_driver/tribits_ctest_update_commands_wrapper.cmake
+    ALWAYS_FAIL_ON_NONZERO_RETURN
+    PASS_REGULAR_EXPRESSION_ALL
+      "cmake -P tribits_ctest_update_commands_wrapper.cmake"
+      "-- OUTPUT_FILE=UpdateCommandsOutput.txt"
+      "tribits_ctest_update_commands_wrapper.cmake return: 0"
+
+  TEST_1
+    CMND cat ARGS UpdateCommandsOutput.txt
+    ALWAYS_FAIL_ON_NONZERO_RETURN
+    PASS_REGULAR_EXPRESSION_ALL
+      "cmake -P tribits_ctest_update_commands.cmake:"
+      "-- GIT_EXE=/some-dir/git"
+      "-- REMOTE_NAME=origin"
+      "-- BRANCH="
+      "-- UNIT_TEST_MODE=ON"
+      "Running: /some-dir/git fetch origin"
+      "execute_process[(]COMMAND[;]/some-dir/git[;]fetch[;]origin[)]"
+      "Running: /some-dir/git clean -fdx"
+      "execute_process[(]COMMAND[;]/some-dir/git[;]clean[;]-fdx[)]"
+      "Running: /some-dir/git reset --hard HEAD"
+      "execute_process[(]COMMAND[;]/some-dir/git[;]reset[;]--hard[;]HEAD[)]"
+      "Running: /some-dir/git reset --hard @{u}"
+      "execute_process[(]COMMAND[;]/some-dir/git[;]reset[;]--hard[;]@{u}[)]"
+      "Git Update PASSED!"
+
+   )
+
+

@@ -55,13 +55,19 @@
 #
 # * Empty "" (the default)
 #
-# * "MY_CDASH" (submits to the default TribitsExProj project site on
-#   my.cdash.org)
+# * "TESTING_SANDIA_CDASH": Submits to TribitsExProj on testing.sandia.gov/cdash
 #
-# * "TRILINOS_CDASH" (submits to TribitsExProj project on
-#   testing.sandia.gov/cdash/)
+# * "TESTING_DEV_SANDIA_CDASH": Submits to TribitsExProj on testing-dev.sandia.gov/cdash
 #
-# * "EXP_CDASH" (submits to TribitsExProj on exp.cdash.org)
+# * "EXP_CDASH": Submits to TribitsExProj on exp.cdash.org
+#
+# * "CUSTOM": Submits to arbitrary CDash site prvoided by the vars.
+#
+#   * -D${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE=someurl.com
+#
+#   * -D${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME=TribitsExProj (the default)
+#
+#   * -D${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION="cdash/submit.php?project=TribitsExProj"
 #
 # In addition, tests can also be added to test coverage testing and memory
 # testing.
@@ -106,6 +112,7 @@ SET(PBP_COMMON_ENV_ARGS
   CTEST_ENABLE_MODIFIED_PACKAGES_ONLY=OFF
   TribitsExProj_PRE_REPOSITORIES=
   TribitsExProj_EXTRA_REPOSITORIES=
+  TribitsExProj_EXTRA_CONFIGURE_OPTIONS=-DTribitsExProj_ENABLE_INSTALL_CMAKE_CONFIG_FILES=OFF 
   CTEST_BUILD_FLAGS=-j2
   CTEST_PARALLEL_LEVEL=1
   # Other args
@@ -133,29 +140,34 @@ IF ("${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO}" STREQUAL "")
   SET(CTEST_DROP_SITE_ENV_ARGS
     CTEST_DO_SUBMIT=OFF
     )
-ELSEIF (${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO STREQUAL "MY_CDASH")
-  SET(CTEST_DROP_SITE_ENV_ARGS CTEST_DO_SUBMIT=TRUE)
-ELSEIF (${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO STREQUAL "TRILINOS_CDASH")
-  SET(CTEST_DROP_SITE_ENV_ARGS
-    CTEST_DO_SUBMIT=TRUE
-    CTEST_DROP_SITE="testing.sandia.gov/cdash"
-    CTEST_PROJECT_NAME="TribitsExProj"
-    CTEST_DROP_LOCATION="/submit.php?project=TribitsExProj"
-    )
+ELSEIF (${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO STREQUAL "TESTING_SANDIA_CDASH")
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE "testing.sandia.gov")
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME "TribitsExProj")
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION "/cdash/submit.php?project=TribitsExProj" )
+ELSEIF (${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO STREQUAL "TESTING_DEV_SANDIA_CDASH")
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE "testing-dev.sandia.gov")
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME "TribitsExProj")
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION "/cdash/submit.php?project=TribitsExProj" )
 ELSEIF (${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO STREQUAL "EXP_CDASH")
-  SET(CTEST_DROP_SITE_ENV_ARGS
-    CTEST_DO_SUBMIT=TRUE
-    CTEST_DROP_SITE="exp.cdash.org"
-    CTEST_PROJECT_NAME="TribitsExProj"
-    CTEST_DROP_LOCATION="/submit.php?project=TribitsExProj"
-    )
-ELSEIF (${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO STREQUAL "TESTING_VM_SANDIA_CDASH")
-  SET(CTEST_DROP_SITE_ENV_ARGS
-    CTEST_DO_SUBMIT=TRUE
-    CTEST_DROP_SITE="testing-vm.sandia.gov"
-    CTEST_PROJECT_NAME="TribitsExProj"
-    CTEST_DROP_LOCATION="/cdash/submit.php?project=TribitsExProj"
-    )
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE "exp.cdash.org")
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME "TribitsExProj")
+  SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION "/submit.php?project=TribitsExProj")
+ELSEIF (${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO STREQUAL "CUSTOM")
+  IF ("${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE}" STREQUAL "")
+    SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE
+      $ENV{${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE} )
+  ENDIF()
+  IF ("${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME}" STREQUAL "")
+    SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME
+      $ENV{${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME} )
+  ENDIF()
+  IF ("${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME}" STREQUAL "")
+    SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME TribitsExProj)
+  ENDIF()
+  IF ("${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION}" STREQUAL "")
+    SET(${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION
+      $ENV{${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION} )
+  ENDIF()
 ELSE()
   MESSAGE(FATAL_ERROR "Error, the value"
     " ${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO='${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO}'"
@@ -165,10 +177,21 @@ ELSE()
 ENDIF()
 
 IF (NOT "${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_TO}" STREQUAL "")
+
   MESSAGE(
-    "NOTE: The tests ${PACKAGE_NAME}_CTestDriver_XXX are set up to submit CDash!"
-    " (See the test details for what CDash site is being targeted!)"
+    "\nNOTE: The tests ${PACKAGE_NAME}_CTestDriver_XXX are set up to submit CDash at:\n"
+    "    CTEST_DROP_SITE='${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE}'\n"
+    "    CTEST_PROJECT_NAME='${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME}'\n"
+    "    CTEST_DROP_LOCATION='${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION}'\n"
     )
+
+  SET(CTEST_DROP_SITE_ENV_ARGS
+    CTEST_DO_SUBMIT=TRUE
+    CTEST_DROP_SITE="${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_SITE}"
+    CTEST_PROJECT_NAME="${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_PROJECT_NAME}"
+    CTEST_DROP_LOCATION="${${PACKAGE_NAME}_CTEST_DRIVER_SUBMIT_DROP_LOCATION}"
+    )
+
 ENDIF()
 
 
@@ -188,6 +211,7 @@ ENDFOREACH()
 SET(TribitsExampleProject_COMMON_CONFIG_ARGS
   ${COMMON_ENV_ARGS_PASSTHROUGH}
   -DTribitsExProj_ENABLE_Fortran=${${PROJECT_NAME}_ENABLE_Fortran}
+  -DTribitsExProj_ENABLE_INSTALL_CMAKE_CONFIG_FILES=OFF
   ${CTEST_DROP_SITE_CONFIG_ARGS}
   )
 
@@ -240,7 +264,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_ST_ALL_PASS
       "WrapExternal: Libs build passed"
       "WrapExternal: All build passed"
       "WrapExternal_run_external_func [.]+ +Passed"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
   )
   # NOTE: The above test is the basic mode of testing everything and making
@@ -274,7 +298,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_GlobalConfigureFail
       "MixedLang FAILED to configure"
       "WithSubpackages FAILED to configure"
       "Final set packages that failed to configure or have the libraries build: 'SimpleCxx[;]MixedLang[;]WithSubpackages'"
-      "Final set packages that had any failures: 'SimpleCxx[;]MixedLang[;]WithSubpackages'"
+      "Final set of packages that had any failures: 'SimpleCxx[;]MixedLang[;]WithSubpackages'"
       "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
     ALWAYS_FAIL_ON_ZERO_RETURN
   )
@@ -315,7 +339,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_ST_BreakConfigureOptionalPkg
       "CONFIGURE_OPTIONS = '.*[;]-DTribitsExProj_ENABLE_MixedLang:BOOL=OFF[;].*[;]-DTribitsExProj_ENABLE_WrapExternal:BOOL=ON'"
       "WrapExternal: Configure passed"
       "Final set packages that failed to configure or have the libraries build: 'MixedLang'"
-      "Final set packages that had any failures: 'MixedLang'"
+      "Final set of packages that had any failures: 'MixedLang'"
       "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
     ALWAYS_FAIL_ON_ZERO_RETURN
   )
@@ -360,7 +384,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_ST_BreakBuildLibOptionalPkg
       "CONFIGURE_OPTIONS = '.*[;]-DTribitsExProj_ENABLE_MixedLang:BOOL=OFF[;].*[;]-DTribitsExProj_ENABLE_WrapExternal:BOOL=ON'"
       "WrapExternal: Configure passed"
       "Final set packages that failed to configure or have the libraries build: 'MixedLang'"
-      "Final set packages that had any failures: 'MixedLang'"
+      "Final set of packages that had any failures: 'MixedLang'"
       "CMake Error at .*/TribitsCTestDriverCore.cmake"
       "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
     ALWAYS_FAIL_ON_ZERO_RETURN
@@ -405,7 +429,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_ST_BreakBuildAllOptionalPkg
       "WithSubpackagesA_test_of_a [.]+ +Passed"
       "WithSubpackagesC_test_of_c_b_mixed_lang [.]+ +Passed"
       "WrapExternal: Configure passed"
-      "Final set packages that had any failures: 'MixedLang'"
+      "Final set of packages that had any failures: 'MixedLang'"
       "CMake Error at .*/TribitsCTestDriverCore.cmake"
       "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
     FAIL_REGULAR_EXPRESSION
@@ -454,7 +478,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_ST_BreakTestPkg
       "WithSubpackagesC_test_of_c_b_mixed_lang [.]+ +Passed"
       "WrapExternal: All build passed"
       "WrapExternal_run_external_func [.]+ +Passed"
-      "Final set packages that had any failures: 'SimpleCxx'"
+      "Final set of packages that had any failures: 'SimpleCxx'"
       "CMake Error at .*/TribitsCTestDriverCore.cmake"
       "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
     FAIL_REGULAR_EXPRESSION
@@ -503,7 +527,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_ST_BreakConfigureRequiredPkg
       "WrapExternal: Configure passed"
       "WrapExternal: All build passed"
       "Final set packages that failed to configure or have the libraries build: 'SimpleCxx'"
-      "Final set packages that had any failures: 'SimpleCxx'"
+      "Final set of packages that had any failures: 'SimpleCxx'"
       "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
     ALWAYS_FAIL_ON_ZERO_RETURN
   )
@@ -540,7 +564,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_ST_ALL_COVERAGE
       "Running coverage for package 'MixedLang'"
       "Running coverage for package 'WithSubpackages'"
       "Running coverage for package 'WrapExternal'"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
   )
   # NOTE: The above test is the only coverage test for PBP.
@@ -577,7 +601,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_ST_ALL_MEMORY
       "MemCheck .+: WithSubpackagesA_test_of_a [.]+ +Passed"
       "Running memory testing for package 'WrapExternal'"
       "MemCheck .+: WrapExternal_run_external_func [.]+ +Passed"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
   )
   # NOTE: The above test is the only memory test for PBP.
@@ -624,7 +648,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_Dashboard_ST_ALL_PASS
       "3. Processing current package WrapExternal: libs='ON', tests='ON'"
       "Done with the incremental building and testing of TribitsExProj packages"
       "TRIBITS_CTEST_DRIVER_ERROR_QUEUE is empty. All is well."
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       "C[)] Clean out the list of packages again to clean the cache file"
       "D[)] Reconfigure with the original package list"
     ALWAYS_FAIL_ON_NONZERO_RETURN
@@ -681,7 +705,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_Dashboard_ST_PackagesSubset_PASS
       "1. Processing current package WrapExternal: libs='ON', tests='ON'"
       "Done with the incremental building and testing of TribitsExProj packages"
       "TRIBITS_CTEST_DRIVER_ERROR_QUEUE is empty. All is well."
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
   TEST_2
     MESSAGE "Verify that the right set of packages are set"
@@ -733,6 +757,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_PT_ALL_PASS_CALLS_2
       "-- CTEST_DO_UPDATES='OFF'"
       "-- CTEST_DO_CONFIGURE='TRUE'"
       "-- CTEST_DO_BUILD='TRUE'"
+      "-- CTEST_DO_INSTALL='FALSE'"
       "-- ENV_CTEST_DO_TEST='OFF'"
       "-- CTEST_DO_TEST='OFF'"
       "-- CTEST_DO_COVERAGE_TESTING='FALSE'"
@@ -755,7 +780,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_PT_ALL_PASS_CALLS_2
       "WithSubpackages: Libs build passed"
       "WithSubpackages: All build passed"
       "WithSubpackages: Skipping running tests due to CTEST_DO_TEST='OFF'"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
 
   TEST_2
@@ -792,7 +817,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_PT_ALL_PASS_CALLS_2
       "WithSubpackages: Configure passed!"
       "WithSubpackages: Skipping build due to CTEST_DO_BUILD='OFF'"
       "WithSubpackages: File '' does NOT exist so all tests passed"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
 
   )
@@ -839,7 +864,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_PT_ALL_PASS_CALLS_4
       "Calling ctest_start[(]Continuous[)]"
       "Run dashboard with model Continuous"
       "Skipping processing anything else since not requested to configure, build, test, or run memory tests"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
 
   TEST_2
@@ -877,7 +902,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_PT_ALL_PASS_CALLS_4
       "WithSubpackages: Configure passed!"
       "WithSubpackages: Skipping build due to CTEST_DO_BUILD='OFF'"
       "WithSubpackages: Skipping running tests due to CTEST_DO_TEST='OFF'"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
 
   TEST_3
@@ -918,7 +943,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_PT_ALL_PASS_CALLS_4
       "WithSubpackages: Libs build passed"
       "WithSubpackages: All build passed"
       "WithSubpackages: Skipping running tests due to CTEST_DO_TEST='OFF'"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
 
   TEST_4
@@ -955,7 +980,7 @@ TRIBITS_ADD_ADVANCED_TEST( CTestDriver_PBP_PT_ALL_PASS_CALLS_4
       "WithSubpackages: Configure passed!"
       "WithSubpackages: Skipping build due to CTEST_DO_BUILD='OFF'"
       "WithSubpackages: File '' does NOT exist so all tests passed"
-      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+      "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
     ALWAYS_FAIL_ON_NONZERO_RETURN
 
   )
@@ -1017,7 +1042,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "Configure, build, test and submit results all-at-once for all enabled packages"
 	"CTEST_LABELS_FOR_SUBPROJECTS='SimpleCxx[;]MixedLang[;]WithSubpackages[;]WrapExternal'"
         "Configuring [.][.][.]"
-        "CONFIGURE_OPTIONS = '-DTribitsExProj_TRIBITS_DIR=.*/tribits[;]-DCTEST_USE_LAUNCHERS:BOOL=1[;]-DTribitsExProj_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=ON[;]-DTribitsExProj_WARNINGS_AS_ERRORS_FLAGS:STRING=[;]-DTribitsExProj_ALLOW_NO_PACKAGES:BOOL=ON[;]-DTribitsExProj_DISABLE_ENABLED_FORWARD_DEP_PACKAGES=ON[;]-DTribitsExProj_DEPS_XML_OUTPUT_FILE:FILEPATH=[;]-DTribitsExProj_ENABLE_SECONDARY_TESTED_CODE:BOOL=TRUE[;]-DTribitsExProj_EXTRAREPOS_FILE:STRING=[;]-DTribitsExProj_IGNORE_MISSING_EXTRA_REPOSITORIES:BOOL=ON[;]-DTribitsExProj_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE:STRING=Continuous[;]-DTribitsExProj_ENABLE_ALL_PACKAGES=ON[;]-DTribitsExProj_ENABLE_TESTS:BOOL=ON[;]-DBUILD_SHARED_LIBS:BOOL=ON[;]-DCMAKE_BUILD_TYPE=DEBUG[;]-DCMAKE_C_COMPILER=gcc[;]-DCMAKE_CXX_COMPILER=g[+][+][;]-DCMAKE_Fortran_COMPILER=gfortran[;]-DTribitsExProj_ENABLE_Fortran=ON[;]-DTribitsExProj_TRACE_ADD_TEST=ON'"
+        "CONFIGURE_OPTIONS = '-DTribitsExProj_TRIBITS_DIR=.*/tribits[;]-DCTEST_USE_LAUNCHERS:BOOL=1[;]-DTribitsExProj_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=ON[;]-DTribitsExProj_WARNINGS_AS_ERRORS_FLAGS:STRING=[;]-DTribitsExProj_ALLOW_NO_PACKAGES:BOOL=ON[;]-DTribitsExProj_DISABLE_ENABLED_FORWARD_DEP_PACKAGES=ON[;]-DTribitsExProj_DEPS_XML_OUTPUT_FILE:FILEPATH=[;]-DTribitsExProj_ENABLE_SECONDARY_TESTED_CODE:BOOL=TRUE[;]-DTribitsExProj_EXTRAREPOS_FILE:STRING=[;]-DTribitsExProj_IGNORE_MISSING_EXTRA_REPOSITORIES:BOOL=ON[;]-DTribitsExProj_ENABLE_KNOWN_EXTERNAL_REPOS_TYPE:STRING=Continuous[;]-DTribitsExProj_ENABLE_ALL_PACKAGES=ON[;]-DTribitsExProj_ENABLE_TESTS:BOOL=ON[;]-DBUILD_SHARED_LIBS:BOOL=ON[;]-DCMAKE_BUILD_TYPE=DEBUG[;]-DCMAKE_C_COMPILER=gcc[;]-DCMAKE_CXX_COMPILER=g[+][+][;]-DCMAKE_Fortran_COMPILER=gfortran[;]-DTribitsExProj_ENABLE_Fortran=ON[;]-DTribitsExProj_TRACE_ADD_TEST=ON[;]-DTribitsExProj_ENABLE_INSTALL_CMAKE_CONFIG_FILES=OFF'"
         "Configure PASSED"
         "Building all targets [.][.][.]"
         "Build output: BUILD_ALL_NUM_ERRORS='0',BUILD_ALL_RETURN_VAL='0'"
@@ -1033,7 +1058,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Skipping converage tests because CTEST_DO_COVERAGE_TESTING='FALSE'"
 	"Skipping memory testing because CTEST_DO_MEMORY_TESTING='FALSE'"
         "File '' does NOT exist so all tests passed"
-        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
     )
     # NOTE: The above test is the basic mode of testing all packages and making
@@ -1051,7 +1076,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
       CMND ln
       ARGS -s ${TribitsExProj_DIR} .
     TEST_1
-      MESSAGE "Run ctest driver testing everyting but no push."
+      MESSAGE "Run ctest -S driver"
       CMND env
       ARGS
         CTEST_DASHBOARD_ROOT=PWD
@@ -1081,8 +1106,27 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "SimpleCxx_HelloWorldTests [.]+ +Passed"
         "SimpleCxx_HelloWorldProg [.]+ +Passed"
         "File '' does NOT exist so all tests passed"
-        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
+    #TEST_2
+    #  MESSAGE "Make sure the Note.xml file contains the right contents"
+    #  CMND env
+    #  ARGS
+    #    TRIBITS_PROJECT_NAME=TribitsExProj
+    #    TribitsExProj_TRIBITS_DIR=${${PROJECT_NAME}_TRIBITS_DIR}
+    #    CTEST_BUILD_DIR=BUILD
+    #    "${CMAKE_CURRENT_LIST_DIR}/../list_cdash_notes_files_in_xml_file.sh"
+    #  PASS_REGULAR_EXPRESSION_ALL
+    #    "DUMMY_NO_MATCH"
+    #  ALWAYS_FAIL_ON_NONZERO_RETURN
+   
+    # NOTE: Above, we can't actually grep the notes file because the Notes.xml
+    # file does not get created unless you submit!  And the notes files for
+    # Updates.txt and UpdateCommandsOutput.txt will not get created unless you
+    # do ctest_update().  Therefore, we will need automated tests that
+    # actually clone and update repos in order to test the generated Notes.xml
+    # file.
+
     )
     # NOTE: The above test enables just one package with no upstream packages
     # at all.  It should display just a single row on CDash.  We can't detect
@@ -1128,7 +1172,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "SimpleCxx_HelloWorldProg [.]+ +Passed"
         "WrapExternal_run_external_func [.]+ +Passed"
         "File '' does NOT exist so all tests passed"
-        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
     )
     # NOTE: The above test makes sure that requesting a subset of packages build
@@ -1161,7 +1205,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Skipping build because configure failed"
 	"Skipping tests because configure failed"
 	"Done with the all-at-once configure, build, test, ans submit of TribitsExProj packages"
-	"Final set packages that had any failures: 'ALL_PACKAGES'"
+	"Final set of packages that had any failures: 'ALL_PACKAGES'"
         "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
       ALWAYS_FAIL_ON_ZERO_RETURN
     TEST_3
@@ -1204,7 +1248,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Skipping build because configure failed"
 	"Skipping tests because configure failed"
 	"Done with the all-at-once configure, build, test, ans submit of TribitsExProj packages"
-	"Final set packages that had any failures: 'SimpleCxx[;]WrapExternal'"
+	"Final set of packages that had any failures: 'SimpleCxx[;]WrapExternal'"
         "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
       ALWAYS_FAIL_ON_ZERO_RETURN
     )
@@ -1251,7 +1295,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"WithSubpackagesC_test_of_c_b_mixed_lang [.]+[*][*][*]Not Run"
         "WrapExternal_run_external_func [.]+[*][*][*]Not Run"
         "File '.+/${PACKAGE_NAME}_CTestDriver_AAO${AAO_POSTFIX}_ST_ALL_BreakWithSubpackagesALib/BUILD/Testing/Temporary/LastTestsFailed_.+.log' exists so there were non-passing tests"
-        "Final set packages that had any failures: 'WithSubpackages.*WrapExternal"
+        "Final set of packages that had any failures: 'ALL_PACKAGES'"
         "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
       ALWAYS_FAIL_ON_ZERO_RETURN
     TEST_3
@@ -1260,7 +1304,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
       ARGS
         BUILD/failedPackages.txt
       PASS_REGULAR_EXPRESSION_ALL
-        "WithSubpackages[;]WrapExternal"
+        "ALL_PACKAGES"
       ALWAYS_FAIL_ON_NONZERO_RETURN
     )
     # NOTE: The above test ensures that the library build failure of an
@@ -1305,7 +1349,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "SimpleCxx_HelloWorldProg [.]+ +Passed"
         "WrapExternal_run_external_func [.]+[*][*][*]Not Run"
         "File '.+/${PACKAGE_NAME}_CTestDriver_AAO${AAO_POSTFIX}_ST_PackagesSubset_BreakWithSubpackagesALib/BUILD/Testing/Temporary/LastTestsFailed_.+.log' exists so there were non-passing tests"
-        "Final set packages that had any failures: 'WrapExternal'"
+        "Final set of packages that had any failures: 'SimpleCxx[;]WrapExternal'"
         "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
       ALWAYS_FAIL_ON_ZERO_RETURN
     )
@@ -1348,7 +1392,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "WithSubpackagesC_test_of_c_util [.]+ +Passed"
         "WithSubpackagesC_test_of_c_b_mixed_lang [.]+ +Passed"
         "WrapExternal_run_external_func [.]+ +Passed"
-        "Final set packages that had any failures: 'SimpleCxx'"
+        "Final set of packages that had any failures: 'ALL_PACKAGES'"
         "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
       ALWAYS_FAIL_ON_ZERO_RETURN
     )
@@ -1390,7 +1434,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "WithSubpackagesC_test_of_c_util [.]+ +Passed"
         "WithSubpackagesC_test_of_c_b_mixed_lang [.]+ +Passed"
         "WrapExternal_run_external_func [.]+ +Passed"
-        "Final set packages that had any failures: 'SimpleCxx'"
+        "Final set of packages that had any failures: 'SimpleCxx'"
         "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
       ALWAYS_FAIL_ON_ZERO_RETURN
     )
@@ -1426,7 +1470,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Percentage Coverage:"  # printed by ctest_coverage()
 	"Done with the all-at-once configure, build, test, ans submit of TribitsExProj packages"
 	"TRIBITS_CTEST_DRIVER_ERROR_QUEUE is empty. All is well."
-        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
     )
     # NOTE: The above test is the only coverage test for AAO mode!
@@ -1462,7 +1506,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "MemCheck .+: WrapExternal_run_external_func [.]+ +Passed"
 	"Done with the all-at-once configure, build, test, ans submit of TribitsExProj packages"
 	"TRIBITS_CTEST_DRIVER_ERROR_QUEUE is empty. All is well."
-        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
     )
     # NOTE: The above test is the only memory test for AAO mode!
@@ -1499,7 +1543,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Final set of packages to be explicitly processed by CTest/CDash:  SimpleCxx MixedLang WithSubpackages WrapExternal 4"
 	"Configure, build, test and submit results all-at-once for all enabled packages"
         "CTEST_LABELS_FOR_SUBPROJECTS='SimpleCxx[;]MixedLang[;]WithSubpackages[;]WrapExternal'"
-        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
     TEST_2
       MESSAGE "Verify that the right set of packages are set"
@@ -1543,7 +1587,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "Final set of packages to be explicitly processed by CTest/CDash:  SimpleCxx 1"
         "CTEST_LABELS_FOR_SUBPROJECTS='SimpleCxx'"
         "TRIBITS_CTEST_DRIVER_ERROR_QUEUE is empty. All is well."
-        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
     TEST_2
       MESSAGE "Verify that the right set of packages are set"
@@ -1596,7 +1640,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
         "Final set of packages to be explicitly processed by CTest/CDash:  SimpleCxx WrapExternal 2"
         "CTEST_LABELS_FOR_SUBPROJECTS='SimpleCxx[;]WrapExternal'"
         "TRIBITS_CTEST_DRIVER_ERROR_QUEUE is empty. All is well."
-        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
     TEST_2
       MESSAGE "Verify that the right set of packages are set"
@@ -1658,7 +1702,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Skipping tests because CTEST_DO_TEST='OFF'"
 	"Skipping converage tests because CTEST_DO_COVERAGE_TESTING='FALSE'"
 	"Skipping memory testing because CTEST_DO_MEMORY_TESTING='FALSE'"
-	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
 
     TEST_2
@@ -1694,7 +1738,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"File '' does NOT exist so all tests passed"
 	"Skipping converage tests because CTEST_DO_COVERAGE_TESTING='FALSE'"
 	"Skipping memory testing because CTEST_DO_MEMORY_TESTING='FALSE'"
-	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
 
     )
@@ -1734,7 +1778,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Calling ctest_start[(]Continuous[)]"
 	"Run dashboard with model Continuous"
 	"Skipping processing anything else since not requested to configure, build, test, or run memory tests"
-	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
 
     TEST_2
@@ -1760,7 +1804,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Configure PASSED"
 	"Skipping build due to CTEST_DO_BUILD='OFF'"
 	"Skipping tests because CTEST_DO_TEST='OFF'"
-	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
 
     TEST_3
@@ -1787,7 +1831,7 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Building all targets"
 	"Build PASSED"
 	"Skipping tests because CTEST_DO_TEST='OFF'"
-	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
 
     TEST_4
@@ -1813,12 +1857,320 @@ FUNCTION(GENERATE_AAO_TESTS  USE_NEW_AAO_CTEST_CDASH_FEATURES)
 	"Skipping configure due to CTEST_DO_CONFIGURE='OFF'"
 	"Skipping build due to CTEST_DO_BUILD='OFF'"
 	"File '' does NOT exist so all tests passed"
-	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSSED"
+	"TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
       ALWAYS_FAIL_ON_NONZERO_RETURN
 
     )
   # NOTE: The above test does the build in the first ctest -S invocation and
   # the tests in teh second ctest -S invocation.
+
+
+  #
+  # Test CTEST_DO_INSTALL
+  #
+
+  SET(TEST_NAME_BODY CTestDriver_AAO${AAO_POSTFIX}_CTEST_DO_INSTALL_PASS)
+  SET(TEST_NAME ${PACKAGE_NAME}_${TEST_NAME_BODY})
+  TRIBITS_ADD_ADVANCED_TEST( ${TEST_NAME_BODY}
+    OVERALL_WORKING_DIRECTORY TEST_NAME
+    OVERALL_NUM_MPI_PROCS 1
+    TEST_0
+      MESSAGE "Symlink TribitsExampleProject so no need to clone (which would not work)."
+      CMND ln
+      ARGS -s ${TribitsExProj_DIR} .
+    TEST_1
+      MESSAGE "Run ctest driver testing everyting but no submit to CDash."
+      CMND env
+      ARGS
+        CTEST_DASHBOARD_ROOT=PWD
+        ${AAO_COMMON_ENV_ARGS}
+        TribitsExProj_ENABLE_SECONDARY_TESTED_CODE=TRUE
+	TribitsExProj_EXTRA_CONFIGURE_OPTIONS=-DTribitsExProj_ENABLE_INSTALL_CMAKE_CONFIG_FILES=ON
+        TribitsExProj_PACKAGES=SimpleCxx,WithSubpackages
+        TribitsExProj_CMAKE_INSTALL_PREFIX=install
+        CTEST_DO_INSTALL=ON
+        CTEST_EXPLICITLY_ENABLE_IMPLICITLY_ENABLED_PACKAGES=FALSE
+        ${CTEST_DROP_SITE_ENV_ARGS}
+        CTEST_BUILD_NAME=${TEST_NAME}
+        ${CTEST_S_SCRIPT_ARGS}
+      PASS_REGULAR_EXPRESSION_ALL
+        "ENV_CTEST_DO_INSTALL='ON'"
+        "CTEST_DO_INSTALL='ON'"
+        "Final set of enabled packages:  SimpleCxx MixedLang WithSubpackages 3"
+        "Installing [(]i.e. building target 'install_package_by_package'[)] [.][.][.]"
+        "Build install output: BUILD_INSTALL_NUM_ERRORS='0',BUILD_INSTALL_RETURN_VAL='0'"
+	"Install PASSED!"
+        "File '' does NOT exist so all tests passed!"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL PASSED"
+      ALWAYS_FAIL_ON_NONZERO_RETURN
+    TEST_2
+      MESSAGE "Run the installed simplecxx-helloworld program."
+      CMND ./BUILD/install/bin/simplecxx-helloworld
+      PASS_REGULAR_EXPRESSION_ALL
+        "Hello World"
+        "Debug is enabled!"
+        "Sqr[(]3[)] = 9"
+      ALWAYS_FAIL_ON_NONZERO_RETURN
+    TEST_3
+      MESSAGE "look for some installed header files"
+      CMND ls ARGS BUILD/install/include
+      PASS_REGULAR_EXPRESSION_ALL
+        "A.hpp"
+        "B.hpp"
+        "Makefile.export.MixedLang"
+        "Makefile.export.SimpleCxx"
+        "Makefile.export.TribitsExProj"
+        "Makefile.export.WithSubpackages"
+        "MixedLang.hpp"
+        "SimpleCxx_HelloWorld.hpp"
+      ALWAYS_FAIL_ON_NONZERO_RETURN
+    )
+
+
+  SET(TEST_NAME_BODY
+    CTestDriver_AAO${AAO_POSTFIX}_CTEST_DO_INSTALL_FAIL_bad_intall_filename)
+  SET(TEST_NAME ${PACKAGE_NAME}_${TEST_NAME_BODY})
+  SET(TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}")
+  TRIBITS_ADD_ADVANCED_TEST( ${TEST_NAME_BODY}
+    OVERALL_WORKING_DIRECTORY TEST_NAME
+    OVERALL_NUM_MPI_PROCS 1
+
+    TEST_0
+      MESSAGE "Copy TribitsExampleProject in so we can break it the install."
+      CMND cp
+      ARGS -r ${TribitsExProj_DIR} .
+
+    TEST_1
+      MESSAGE "Add the install of a file that does not exist!"
+      CMND ${CMAKE_CURRENT_SOURCE_DIR}/append_file_with_line.sh
+      ARGS
+        ${TEST_DIR}/TribitsExampleProject/packages/mixed_lang/src/CMakeLists.txt
+        "\nINSTALL(FILES does_not_exist.txt DESTINATION dummy_intall_dir COMPONENT SimpleCxx)\n"
+
+    TEST_2
+      MESSAGE "Run ctest -S driver which includes the install which should fail."
+      CMND env
+      ARGS
+        CTEST_DASHBOARD_ROOT=PWD
+        ${AAO_COMMON_ENV_ARGS}
+        TribitsExProj_ENABLE_SECONDARY_TESTED_CODE=TRUE
+	TribitsExProj_EXTRA_CONFIGURE_OPTIONS=-DTribitsExProj_ENABLE_INSTALL_CMAKE_CONFIG_FILES=ON
+        TribitsExProj_PACKAGES=SimpleCxx,MixedLang,WithSubpackages
+        TribitsExProj_CMAKE_INSTALL_PREFIX=install
+        CTEST_BUILD_FLAGS="-j2 -k"  # Build everything that will build!
+        CTEST_DO_INSTALL=ON
+        CTEST_EXPLICITLY_ENABLE_IMPLICITLY_ENABLED_PACKAGES=FALSE
+        ${CTEST_DROP_SITE_ENV_ARGS}
+        CTEST_BUILD_NAME=${TEST_NAME}
+        ${CTEST_S_SCRIPT_ARGS}
+      PASS_REGULAR_EXPRESSION_ALL
+        "ENV_CTEST_DO_INSTALL='ON'"
+        "CTEST_DO_INSTALL='ON'"
+        "Final set of enabled packages:  SimpleCxx MixedLang WithSubpackages 3"
+        "CONFIGURE_OPTIONS = '.*[;]-DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON[;].*[;]-DCMAKE_INSTALL_PREFIX=install[;]-DTribitsExProj_ENABLE_INSTALL_CMAKE_CONFIG_FILES=ON'"
+        "Build PASSED!"
+        "Installing [(]i.e. building target 'install_package_by_package'[)] [.][.][.]"
+        "Build install output: BUILD_INSTALL_NUM_ERRORS='1',BUILD_INSTALL_RETURN_VAL='2'"
+	"Install FAILED!"
+        "File '' does NOT exist so all tests passed!"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
+      ALWAYS_FAIL_ON_ZERO_RETURN
+
+    TEST_3
+      MESSAGE "Check the contents of the install dir to see if anything installed"
+      CMND ls ARGS -R BUILD/install
+    PASS_REGULAR_EXPRESSION_ALL
+      "simplecxx-helloworld"      # /bin
+      "SimpleCxx_HelloWorld.hpp"  # /include/
+      "A.hpp"
+      "B.hpp"
+      "MixedLang.hpp"
+      "Ray_Tracer.hh"
+      "TribitsExProj_version.h"
+      "BUILD/install/include/wsp_c:"
+      "C.hpp"
+      "libsimplecxx.so"           # /lib/
+      "libmixedlang.so"
+      "libpws_a.so"
+      "libpws_b.so"
+      "libpws_c.so"
+    ALWAYS_FAIL_ON_NONZERO_RETURN
+    # NOTE: Above proves the 'install_package_by_package' target is working
+    # and just calling the 'install' target because the 'install' target
+    # aborts in the SimpleCxx install while the 'install_package_by_package'
+    # will call install in all of the packages.
+
+  TEST_4
+    MESSAGE "Create and configure a dummy project that includes"
+      " TribitsExProjConfig.cmake from the install tree and ask for non-enabled package" 
+    CMND ${CMAKE_COMMAND}
+    ARGS
+      -DDUMMY_PROJECT_NAME=DummyProject
+      -DDUMMY_PROJECT_DIR=dummy_client_of_TribitsExProj
+      -DEXPORT_VAR_PREFIX=TribitsExProj
+      "-DDUMMY_PROJECT_FIND_COMPONENTS=SimpleCxx,WithSubpackagesA,WrapExternal"
+      -DEXPORT_CONFIG_FILE=../BUILD/install/lib/cmake/TribitsExProj/TribitsExProjConfig.cmake
+      -DCMAKE_COMMAND=${CMAKE_COMMAND}
+      -P ${TriBITS_SOURCE_DIR}/test/core/ExamplesUnitTests/RunDummyPackageClientBulid.cmake
+    PASS_REGULAR_EXPRESSION_ALL
+      "DUMMY_PROJECT_NAME = 'DummyProject'"
+      "DUMMY_PROJECT_DIR = 'dummy_client_of_TribitsExProj'"
+      "EXPORT_CONFIG_FILE = '../BUILD/install/lib/cmake/TribitsExProj/TribitsExProjConfig.cmake'"
+      "TribitsExProj_FIND_COMPONENTS = 'SimpleCxx[;]WithSubpackagesA[;]WrapExternal'"
+      "Component .WrapExternal. NOT found"
+      "TribitsExProj_LIBRARIES = 'pws_a[;]simplecxx'"
+      "TribitsExProj_TPL_INCLUDE_DIRS = '.*/examples/tpls/HeaderOnlyTpl'"
+      "TribitsExProj_PACKAGE_LIST = 'WithSubpackages[;]WithSubpackagesC[;]WithSubpackagesB[;]WithSubpackagesA[;]MixedLang[;]SimpleCxx'"
+      "TribitsExProj_TPL_LIST = 'HeaderOnlyTpl'"
+      "TribitsExProj_WithSubpackages_FOUND = ''"
+      "TribitsExProj_WithSubpackagesC_FOUND = ''"
+      "TribitsExProj_WithSubpackagesB_FOUND = ''"
+      "TribitsExProj_WithSubpackagesA_FOUND = 'TRUE'"
+      "TribitsExProj_MixedLang_FOUND = ''"
+      "TribitsExProj_SimpleCxx_FOUND = 'TRUE'"
+      "TribitsExProj_FOUND = 'TRUE'"
+      "TribitsExProj_WrapExternal_FOUND = 'FALSE'"
+      "-- Configuring done"
+      "-- Generating done"
+    ALWAYS_FAIL_ON_NONZERO_RETURN
+
+    # ToDo: Add another dummy project for the case where componets are
+    # required and assure that TribitsExProj_FOUND = 'FALSE'.
+
+    )
+    # NOTE: That above test tests two primary things:
+    #
+    # * Install failures due to missing files will be caught and reported.
+    #
+    # * If an install failure occures in one package, it will not impact
+    #   installs in other packages due to the custom
+    #   'install_package_by_package' target.
+    #
+
+
+  SET(TEST_NAME_BODY
+    CTestDriver_AAO${AAO_POSTFIX}_CTEST_DO_INSTALL_FAIL_build_failed)
+  SET(TEST_NAME ${PACKAGE_NAME}_${TEST_NAME_BODY})
+  SET(TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}")
+  TRIBITS_ADD_ADVANCED_TEST( ${TEST_NAME_BODY}
+    OVERALL_WORKING_DIRECTORY TEST_NAME
+    OVERALL_NUM_MPI_PROCS 1
+
+    TEST_0
+      MESSAGE "Copy TribitsExampleProject in so we can break it the install."
+      CMND cp
+      ARGS -r ${TribitsExProj_DIR} .
+
+    TEST_1
+      MESSAGE "Add the install of a file that does not exist!"
+      CMND ${CMAKE_CURRENT_SOURCE_DIR}/append_file_with_line.sh
+      ARGS
+        ${TEST_DIR}/TribitsExampleProject/packages/mixed_lang/src/CMakeLists.txt
+        "\nINSTALL(FILES does_not_exist.txt DESTINATION dummy_intall_dir COMPONENT SimpleCxx)\n"
+
+    TEST_2
+      MESSAGE "Break the library build WithSubpackageC"
+      CMND ${CMAKE_CURRENT_SOURCE_DIR}/append_file_with_line.sh
+      ARGS TribitsExampleProject/packages/with_subpackages/c/C.cpp
+        "Build of C.cpp lib is broken!"
+
+    TEST_3
+      MESSAGE "Run ctest -S driver"
+      CMND env
+      ARGS
+        CTEST_DASHBOARD_ROOT=PWD
+        ${AAO_COMMON_ENV_ARGS}
+        TribitsExProj_ENABLE_SECONDARY_TESTED_CODE=TRUE
+	TribitsExProj_EXTRA_CONFIGURE_OPTIONS=-DTribitsExProj_ENABLE_INSTALL_CMAKE_CONFIG_FILES=ON
+        TribitsExProj_PACKAGES=SimpleCxx,MixedLang,WithSubpackages
+        TribitsExProj_CMAKE_INSTALL_PREFIX=install
+        CTEST_BUILD_FLAGS="-j2 -k"  # Build everything that will build!
+        CTEST_DO_INSTALL=ON
+        CTEST_EXPLICITLY_ENABLE_IMPLICITLY_ENABLED_PACKAGES=FALSE
+        ${CTEST_DROP_SITE_ENV_ARGS}
+        CTEST_BUILD_NAME=${TEST_NAME}
+        ${CTEST_S_SCRIPT_ARGS}
+      PASS_REGULAR_EXPRESSION_ALL
+        "Build FAILED!"
+	"Install FAILED!"
+        "78% tests passed, 2 tests failed out of 9"
+	"WithSubpackagesC_test_of_c [(]Not Run[)]"
+	"WithSubpackagesC_test_of_c_b_mixed_lang [(]Not Run[)]"
+        "TRIBITS_CTEST_DRIVER: OVERALL: ALL FAILED"
+      ALWAYS_FAIL_ON_ZERO_RETURN
+
+    TEST_4
+      MESSAGE "Check the contents of the install dir"
+      CMND ls ARGS -R BUILD/install
+    PASS_REGULAR_EXPRESSION_ALL
+      "simplecxx-helloworld"      # /bin
+      "SimpleCxx_HelloWorld.hpp"  # /include/
+      "A.hpp"
+      "B.hpp"
+      "MixedLang.hpp"
+      "Ray_Tracer.hh"
+      "TribitsExProj_version.h"
+      "libsimplecxx.so"           # /lib/
+      "libmixedlang.so"
+      "libpws_a.so"
+      "libpws_b.so"
+    ALWAYS_FAIL_ON_NONZERO_RETURN
+    # NOTE: Almost everything will install accept for the WithSubpackageC
+    # stuff since that library did not build.
+
+  TEST_5
+    MESSAGE "Create and configure a dummy project that includes"
+      " TribitsExProjConfig.cmake where componets are optional" 
+    CMND ${CMAKE_COMMAND}
+    ARGS
+      -DDUMMY_PROJECT_NAME=DummyProject
+      -DDUMMY_PROJECT_DIR=dummy_client_of_TribitsExProj
+      -DEXPORT_VAR_PREFIX=TribitsExProj
+      "-DDUMMY_PROJECT_FIND_COMPONENTS=SimpleCxx,WithSubpackagesA"
+      -DEXPORT_CONFIG_FILE=../BUILD/install/lib/cmake/TribitsExProj/TribitsExProjConfig.cmake
+      -DCMAKE_COMMAND=${CMAKE_COMMAND}
+      -P ${TriBITS_SOURCE_DIR}/test/core/ExamplesUnitTests/RunDummyPackageClientBulid.cmake
+    PASS_REGULAR_EXPRESSION_ALL
+      "DUMMY_PROJECT_NAME = 'DummyProject'"
+      "DUMMY_PROJECT_DIR = 'dummy_client_of_TribitsExProj'"
+      "EXPORT_CONFIG_FILE = '../BUILD/install/lib/cmake/TribitsExProj/TribitsExProjConfig.cmake'"
+      "TribitsExProj_FIND_COMPONENTS = 'SimpleCxx[;]WithSubpackagesA'"
+      "TribitsExProj_LIBRARIES = 'pws_a[;]simplecxx'"
+      "TribitsExProj_TPL_INCLUDE_DIRS = '.*/examples/tpls/HeaderOnlyTpl'"
+      "TribitsExProj_PACKAGE_LIST = 'WithSubpackages[;]WithSubpackagesC[;]WithSubpackagesB[;]WithSubpackagesA[;]MixedLang[;]SimpleCxx'"
+      "TribitsExProj_TPL_LIST = 'HeaderOnlyTpl'"
+      "TribitsExProj_WithSubpackages_FOUND = ''"
+      "TribitsExProj_WithSubpackagesC_FOUND = ''"
+      "TribitsExProj_WithSubpackagesB_FOUND = ''"
+      "TribitsExProj_WithSubpackagesA_FOUND = 'TRUE'"
+      "TribitsExProj_MixedLang_FOUND = ''"
+      "TribitsExProj_SimpleCxx_FOUND = 'TRUE'"
+      "TribitsExProj_FOUND = 'TRUE'"
+      "-- Configuring done"
+      "-- Generating done"
+    ALWAYS_FAIL_ON_NONZERO_RETURN
+
+    # ToDo: Add another dummy project for the case where componets are
+    # required and assure that TribitsExProj_FOUND = 'FALSE'.
+
+    )
+    # NOTE: That above test tests two primary things:
+    #
+    # * Install failures due to missing files will be caught and reported.
+    #
+    # * If something fails to build, the install will still be attempted.
+    #   This checks that -DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON is set
+    #   correctly in the inner configure.
+    #
+    # * If an install failure occures in one package, it will not impact
+    #   installs in other packages due to the custom
+    #   'install_package_by_package' target.
+    #
+    # * Even if one package breaks, one can still use the
+    #   <Project>Config.cmake file if one does not request a broken package
+    #   (or any package downstream from a broken package) in specifing
+    #   COMPONENTS.
+    #
 
  
 ENDFUNCTION()
@@ -1834,4 +2186,3 @@ GENERATE_AAO_TESTS(FALSE)
 IF (${PROJECT_NAME}_CTEST_USE_NEW_AAO_FEATURES)
   GENERATE_AAO_TESTS(TRUE)
 ENDIF()
-
